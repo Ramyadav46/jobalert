@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Job Alert - Your next job starts here</title>
+<style>
+:root {
+  --blue: #2557a7;
+  --blue-dark: #1e4687;
+  --navy: #0d2d5e;
+  --text: #2d2d2d;
+  --muted: #595959;
+  --line: #e4e2e0;
+  --bg: #ffffff;
+  --chip: #f3f2f1;
+  --green: #1f662c;
+  --green-bg: #e4f2e6;
+  --pill-blue-bg: #e8f0fe;
+  --red: #d93025;
+}
+* { margin:0; padding:0; box-sizing:border-box; font-family:"Segoe UI", Arial, Helvetica, sans-serif; }
+body { background:#fff; color:var(--text); padding-bottom:70px; }
+
+/* ---------- Header (Indeed style) ---------- */
+.hdr { background:#fff; border-bottom:1px solid var(--line); position:sticky; top:0; z-index:60; }
+.hdr-in { max-width:1100px; margin:0 auto; padding:0 16px; display:flex; align-items:center; justify-content:space-between; height:60px; }
+.logo { font-size:28px; font-weight:800; color:var(--blue); letter-spacing:-1px; cursor:pointer; }
+.logo span { color:var(--navy); }
+.topnav { display:flex; gap:4px; align-items:center; }
+.topnav a { text-decoration:none; color:var(--text); font-size:14px; padding:18px 12px; border-bottom:2.5px solid transparent; cursor:pointer; display:none; }
+.topnav a.active { color:var(--blue); border-bottom-color:var(--blue); font-weight:600; }
+.signin { color:var(--blue); font-weight:700; font-size:14px; cursor:pointer; padding:8px 12px; border-radius:8px; border:none; background:none; }
+.signin:hover { background:var(--pill-blue-bg); }
+.postjob { font-size:14px; color:var(--text); cursor:pointer; padding:8px 12px; border-left:1px solid var(--line); margin-left:6px; }
+@media(min-width:768px){ .topnav a { display:inline-block; } }
+
+/* ---------- Search bar ---------- */
+.searchwrap { max-width:900px; margin:24px auto 8px; padding:0 16px; }
+.searchbox { display:flex; border:1px solid #767676; border-radius:10px; overflow:hidden; background:#fff; }
+.sfield { flex:1; display:flex; align-items:center; padding:0 12px; }
+.sfield + .sfield { border-left:1px solid var(--line); }
+.sfield svg { width:18px; height:18px; fill:#595959; margin-right:8px; flex-shrink:0; }
+.sfield input { border:none; outline:none; width:100%; font-size:15px; padding:14px 0; }
+.findbtn { background:var(--blue); color:#fff; border:none; font-size:15px; font-weight:700; padding:0 22px; cursor:pointer; }
+.findbtn:hover { background:var(--blue-dark); }
+@media(max-width:600px){
+  .searchbox { flex-direction:column; }
+  .sfield + .sfield { border-left:none; border-top:1px solid var(--line); }
+  .findbtn { padding:13px; }
+}
+
+/* ---------- Hero (logged out) ---------- */
+.hero { text-align:center; padding:26px 16px 6px; }
+.hero h1 { font-size:26px; color:var(--text); margin-bottom:8px; }
+.hero p { color:var(--muted); font-size:14px; margin-bottom:14px; }
+.getstarted { background:var(--blue); color:#fff; border:none; padding:13px 26px; font-size:15px; font-weight:700; border-radius:10px; cursor:pointer; }
+.getstarted:hover { background:var(--blue-dark); }
+
+/* ---------- Job cards ---------- */
+.wrap { max-width:700px; margin:0 auto; padding:8px 16px; }
+.secttl { font-size:16px; font-weight:700; margin:14px 0 10px; }
+.jcard { border:1px solid #d4d2d0; border-radius:12px; padding:16px; margin-bottom:14px; cursor:pointer; background:#fff; position:relative; }
+.jcard:hover { box-shadow:0 2px 10px rgba(0,0,0,0.12); border-color:#b0b0b0; }
+.pillrow { display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap; }
+.pill-easy { background:var(--pill-blue-bg); color:var(--blue); font-size:12.5px; font-weight:600; padding:4px 10px; border-radius:6px; }
+.pill-urgent { background:#fce8f0; color:#9d1f4c; font-size:12.5px; font-weight:600; padding:4px 10px; border-radius:6px; }
+.bkmark { position:absolute; top:14px; right:14px; width:22px; height:22px; fill:none; stroke:#2d2d2d; stroke-width:2; }
+.jtitle { font-size:18px; font-weight:700; margin-bottom:4px; padding-right:34px; }
+.jcomp { font-size:14.5px; color:var(--text); }
+.jloc { font-size:14.5px; color:var(--muted); margin-bottom:10px; }
+.chiprow { display:flex; gap:8px; flex-wrap:wrap; }
+.chip { background:var(--chip); color:#444; font-size:13px; font-weight:600; padding:6px 10px; border-radius:6px; }
+.chip-green { background:var(--green-bg); color:var(--green); }
+.chip-green:before { content:"\2713  "; }
+.postedon { font-size:12px; color:#767676; margin-top:10px; }
+.emptybox { text-align:center; color:#767676; padding:44px 16px; }
+
+/* ---------- Job detail (Indeed style) ---------- */
+.detail-hdr { display:flex; align-items:center; justify-content:space-between; padding:10px 0; }
+.backbtn { background:none; border:none; font-size:22px; cursor:pointer; padding:4px 10px; }
+.dttl { font-size:22px; font-weight:700; margin:6px 0 4px; }
+.dcomp { color:var(--blue); font-size:15px; text-decoration:underline; margin-bottom:14px; display:inline-block; }
+.dsect { border-top:6px solid #f3f2f1; margin:14px -16px 0; padding:16px; }
+.dsect h3 { font-size:18px; margin-bottom:12px; }
+.drow { display:flex; gap:10px; align-items:flex-start; margin-bottom:12px; font-size:15px; }
+.drow svg { width:20px; height:20px; fill:#2d2d2d; flex-shrink:0; margin-top:1px; }
+.drow b { font-weight:700; }
+.ddesc { font-size:15px; line-height:1.6; white-space:pre-line; color:var(--text); }
+.lockbox { background:#f7f9fc; border:1px dashed var(--blue); border-radius:10px; padding:18px; text-align:center; margin-top:8px; }
+.lockbox p { font-size:14px; color:var(--muted); margin-bottom:10px; }
+.applybar { position:sticky; bottom:70px; background:#fff; padding:12px 0; }
+.applybtn { width:100%; background:var(--blue); color:#fff; border:none; font-size:16px; font-weight:700; padding:15px; border-radius:12px; cursor:pointer; }
+.applybtn:hover { background:var(--blue-dark); }
+.applybtn:disabled { background:#9db8d9; cursor:not-allowed; }
+
+/* ---------- Bottom nav (mobile, Indeed style) ---------- */
+.bnav { position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1px solid var(--line); display:flex; z-index:60; }
+.bnav button { flex:1; background:none; border:none; padding:9px 4px 8px; font-size:12px; color:#595959; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px; }
+.bnav button svg { width:22px; height:22px; fill:none; stroke:#595959; stroke-width:1.8; }
+.bnav button.active { color:var(--blue); font-weight:700; }
+.bnav button.active svg { stroke:var(--blue); }
+@media(min-width:768px){ .bnav { max-width:700px; left:50%; transform:translateX(-50%); border:1px solid var(--line); border-radius:14px 14px 0 0; } }
+
+/* ---------- Modal ---------- */
+.modal { display:none; position:fixed; inset:0; background:rgba(45,45,45,0.55); z-index:100; align-items:flex-end; justify-content:center; }
+.modal.show { display:flex; }
+.mbox { background:#fff; border-radius:16px 16px 0 0; width:100%; max-width:480px; padding:22px; max-height:92vh; overflow-y:auto; }
+@media(min-width:600px){ .modal { align-items:center; padding:16px; } .mbox { border-radius:16px; } }
+.mtitle { font-size:20px; font-weight:800; margin-bottom:4px; }
+.msub { font-size:13.5px; color:var(--muted); margin-bottom:16px; }
+.lgtabs { display:flex; border-bottom:1px solid var(--line); margin-bottom:16px; }
+.lgtabs button { flex:1; background:none; border:none; padding:11px; font-size:14px; font-weight:600; color:#595959; cursor:pointer; border-bottom:2.5px solid transparent; }
+.lgtabs button.active { color:var(--blue); border-bottom-color:var(--blue); }
+.fld { margin-bottom:13px; }
+.fld label { display:block; font-size:13.5px; font-weight:700; margin-bottom:5px; }
+.fld input, .fld select, .fld textarea { width:100%; padding:12px; border:1px solid #767676; border-radius:8px; font-size:15px; }
+.fld input:focus, .fld textarea:focus { outline:2px solid var(--blue); border-color:transparent; }
+.mbtn { width:100%; background:var(--blue); color:#fff; border:none; font-size:15px; font-weight:700; padding:14px; border-radius:10px; cursor:pointer; margin-top:4px; }
+.mbtn:hover { background:var(--blue-dark); }
+.mbtn:disabled { background:#9db8d9; cursor:not-allowed; }
+.mlink { width:100%; background:none; border:none; color:var(--blue); font-size:14px; font-weight:600; padding:12px; cursor:pointer; }
+.errmsg { color:var(--red); font-size:13px; margin:8px 0; display:none; }
+.okmsg { color:var(--green); font-size:13px; margin:8px 0; display:none; }
+.otpin { text-align:center; letter-spacing:10px; font-size:24px; font-weight:700; }
+
+/* ---------- My jobs / status ---------- */
+.badge { display:inline-block; padding:4px 12px; border-radius:14px; font-size:12.5px; font-weight:700; }
+.b-Applied { background:var(--chip); color:#444; }
+.b-Shortlisted { background:#fff4d6; color:#8a6d00; }
+.b-InterviewScheduled { background:var(--pill-blue-bg); color:var(--blue-dark); }
+.b-Selected { background:var(--green-bg); color:var(--green); }
+.b-Rejected { background:#fde8e6; color:var(--red); }
+.b-Active { background:var(--green-bg); color:var(--green); }
+.b-Closed { background:#fde8e6; color:var(--red); }
+.note { font-size:13px; background:#fffbe8; border:1px solid #f0e2a0; border-radius:8px; padding:9px; margin-top:8px; }
+.smallbtn { background:#fff; color:var(--blue); border:1.5px solid var(--blue); font-size:13px; font-weight:700; padding:8px 13px; border-radius:8px; cursor:pointer; }
+.smallbtn:hover { background:var(--pill-blue-bg); }
+.greenbtn { background:#188038; color:#fff; border:none; font-size:13px; font-weight:700; padding:9px 13px; border-radius:8px; cursor:pointer; }
+.redbtn { background:var(--red); color:#fff; border:none; font-size:13px; font-weight:700; padding:9px 13px; border-radius:8px; cursor:pointer; }
+
+/* ---------- Admin ---------- */
+.admgrid { display:grid; grid-template-columns:1fr 1fr; gap:0 12px; }
+@media(max-width:600px){ .admgrid { grid-template-columns:1fr; } }
+.acard { border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:12px; }
+.selst { padding:9px; border:1px solid #767676; border-radius:8px; font-size:13px; }
+.filters { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+.filters select, .filters input { padding:9px; border:1px solid #767676; border-radius:8px; font-size:13px; }
+
+.spinner { display:none; text-align:center; padding:36px; color:var(--blue); font-weight:700; }
+#toast { position:fixed; bottom:84px; left:50%; transform:translateX(-50%); background:#2d2d2d; color:#fff; padding:12px 20px; border-radius:10px; font-size:14px; display:none; z-index:200; max-width:90%; text-align:center; }
+</style>
+</head>
+<body>
+
+<!-- ===================== HEADER ===================== -->
+<div class="hdr">
+  <div class="hdr-in">
+    <div class="logo" onclick="go('home')">Job<span>Alert</span></div>
+    <div class="topnav">
+      <a id="tn_home" class="active" onclick="go('home')">Home</a>
+      <a id="tn_myjobs" onclick="go('myjobs')">My jobs</a>
+      <a id="tn_profile" onclick="go('profile')">Profile</a>
+      <button class="signin" id="btnSignin" onclick="openLogin('user')">Sign in</button>
+      <span class="postjob" id="btnAdminLink" onclick="openLogin('admin')">Employers / Post Job</span>
+      <button class="signin" id="btnSignout" style="display:none" onclick="doLogout()">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== HOME VIEW ===================== -->
+<div id="v_home">
+  <div class="hero" id="heroBox">
+    <h1>Your next job starts here</h1>
+    <p>Create an account or sign in to see full job details and apply.</p>
+    <button class="getstarted" onclick="openLogin('user')">Get Started &rarr;</button>
+  </div>
+  <div class="searchwrap">
+    <div class="searchbox">
+      <div class="sfield">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg>
+        <input type="text" id="qWhat" placeholder="Job title, keywords, or company" onkeyup="renderJobs()">
+      </div>
+      <div class="sfield">
+        <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 14.5 9 2.5 2.5 0 0 1 12 11.5z"/></svg>
+        <input type="text" id="qWhere" placeholder='City, state, or "remote"' onkeyup="renderJobs()">
+      </div>
+      <button class="findbtn" onclick="renderJobs()">Find jobs</button>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="secttl" id="jobsHeading">Jobs for you</div>
+    <div class="spinner" id="spinHome">Loading jobs...</div>
+    <div id="jobList"></div>
+  </div>
+</div>
+
+<!-- ===================== JOB DETAIL VIEW ===================== -->
+<div id="v_detail" style="display:none">
+  <div class="wrap">
+    <div class="detail-hdr">
+      <button class="backbtn" onclick="go('home')">&#8249;</button>
+    </div>
+    <div id="detailBody"></div>
+  </div>
+</div>
+
+<!-- ===================== MY JOBS VIEW ===================== -->
+<div id="v_myjobs" style="display:none">
+  <div class="wrap">
+    <div class="secttl" style="font-size:20px;margin-top:18px">My jobs</div>
+    <div class="spinner" id="spinMy">Loading...</div>
+    <div id="myList"></div>
+  </div>
+</div>
+
+<!-- ===================== PROFILE VIEW ===================== -->
+<div id="v_profile" style="display:none">
+  <div class="wrap">
+    <div class="secttl" style="font-size:20px;margin-top:18px">Profile</div>
+    <div id="profileBody"></div>
+  </div>
+</div>
+
+<!-- ===================== ADMIN VIEW ===================== -->
+<div id="v_admin" style="display:none">
+  <div class="wrap">
+    <div class="secttl" style="font-size:20px;margin-top:18px">Admin Panel</div>
+    <div class="lgtabs" style="margin-bottom:14px">
+      <button id="at_jobs" class="active" onclick="admTab('jobs')">Jobs</button>
+      <button id="at_apps" onclick="admTab('apps')">Applications</button>
+    </div>
+    <div class="spinner" id="spinAdm">Loading...</div>
+
+    <div id="admJobsPane">
+      <div class="acard">
+        <div class="secttl" id="jfTitle">Post New Job</div>
+        <input type="hidden" id="jf_id">
+        <div class="admgrid">
+          <div class="fld"><label>Job Title *</label><input type="text" id="jf_title"></div>
+          <div class="fld"><label>Company *</label><input type="text" id="jf_company"></div>
+          <div class="fld"><label>Location *</label><input type="text" id="jf_location"></div>
+          <div class="fld"><label>Salary (e.g. 20,000 - 25,000 a month)</label><input type="text" id="jf_salary"></div>
+          <div class="fld"><label>Job Type</label>
+            <select id="jf_type"><option>Full-time</option><option>Part-time</option><option>Contract</option><option>Internship</option><option>Work From Home</option></select>
+          </div>
+          <div class="fld"><label>Skills (comma separated)</label><input type="text" id="jf_skills"></div>
+        </div>
+        <div class="fld"><label>Job Description *</label><textarea id="jf_desc" rows="4"></textarea></div>
+        <div class="errmsg" id="jf_err"></div>
+        <div class="okmsg" id="jf_ok"></div>
+        <button class="mbtn" id="jf_save" style="max-width:200px" onclick="admSaveJob()">Save Job</button>
+        <button class="mlink" style="max-width:120px" onclick="admResetForm()">Clear</button>
+      </div>
+      <div id="admJobList"></div>
+    </div>
+
+    <div id="admAppsPane" style="display:none">
+      <div class="filters">
+        <select id="af_status" onchange="admRenderApps()"><option value="">All Status</option></select>
+        <input type="text" id="af_q" placeholder="Search name / email / mobile..." onkeyup="admRenderApps()">
+      </div>
+      <div id="admAppList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== BOTTOM NAV ===================== -->
+<div class="bnav">
+  <button id="bn_home" class="active" onclick="go('home')">
+    <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V21h-6v-6H9v6H3z"/></svg>Home
+  </button>
+  <button id="bn_myjobs" onclick="go('myjobs')">
+    <svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg>My jobs
+  </button>
+  <button id="bn_profile" onclick="go('profile')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile
+  </button>
+</div>
+
+<!-- ===================== LOGIN MODAL ===================== -->
+<div class="modal" id="mLogin">
+  <div class="mbox">
+    <div class="mtitle">Sign in</div>
+    <div class="msub">Without signing in you can only see job overview. Sign in to view full details and apply.</div>
+    <div class="lgtabs">
+      <button id="lt_user" class="active" onclick="loginTab('user')">Job Seeker</button>
+      <button id="lt_admin" onclick="loginTab('admin')">Employer / Admin</button>
+    </div>
+
+    <!-- User OTP login -->
+    <div id="pane_user">
+      <div id="u_step1">
+        <div class="fld">
+          <label>Email or Mobile Number</label>
+          <input type="text" id="u_id" placeholder="you@email.com or 9876543210">
+        </div>
+        <div id="u_reg" style="display:none">
+          <div class="msub" style="margin-bottom:10px">New user &mdash; please fill these details:</div>
+          <div class="fld"><label>Full Name</label><input type="text" id="u_name"></div>
+          <div class="fld"><label>Mobile Number</label><input type="text" id="u_mobile" maxlength="10"></div>
+        </div>
+        <div class="errmsg" id="u_err"></div>
+        <button class="mbtn" id="u_send" onclick="sendOtpClick()">Send OTP</button>
+      </div>
+      <div id="u_step2" style="display:none">
+        <div class="okmsg" id="u_sent" style="display:block"></div>
+        <div class="fld">
+          <label>Enter 6-digit OTP</label>
+          <input type="text" id="u_otp" class="otpin" maxlength="6" inputmode="numeric">
+        </div>
+        <div class="errmsg" id="u_oerr"></div>
+        <button class="mbtn" id="u_verify" onclick="verifyOtpClick()">Verify &amp; Sign in</button>
+        <button class="mlink" onclick="backToStep1()">Change email / mobile</button>
+      </div>
+    </div>
+
+    <!-- Admin login -->
+    <div id="pane_admin" style="display:none">
+      <div class="fld"><label>Admin Email</label><input type="text" id="a_email"></div>
+      <div class="fld"><label>Password</label><input type="password" id="a_pass"></div>
+      <div class="errmsg" id="a_err"></div>
+      <button class="mbtn" id="a_btn" onclick="adminLoginClick()">Sign in as Admin</button>
+    </div>
+
+    <button class="mlink" onclick="closeModal('mLogin')">Cancel</button>
+  </div>
+</div>
+
+<!-- ===================== APPLY MODAL ===================== -->
+<div class="modal" id="mApply">
+  <div class="mbox">
+    <div class="mtitle" id="ap_title">Apply</div>
+    <div class="msub">Your application will be sent with your resume.</div>
+    <div id="ap_choice" style="display:none;margin-bottom:12px">
+      <label style="font-size:14px;display:block;margin-bottom:6px"><input type="radio" name="ap_mode" value="existing" checked> Use my saved resume</label>
+      <label style="font-size:14px;display:block"><input type="radio" name="ap_mode" value="new"> Upload new resume</label>
+    </div>
+    <div class="fld" id="ap_filefld"><label>Upload Resume (PDF/DOC, max 5 MB)</label><input type="file" id="ap_file" accept=".pdf,.doc,.docx"></div>
+    <div class="errmsg" id="ap_err"></div>
+    <button class="mbtn" id="ap_submit" onclick="submitApply()">Submit Application</button>
+    <button class="mlink" onclick="closeModal('mApply')">Cancel</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ======================================================
+   CONFIG — paste your Apps Script Web App /exec URL here
+   ====================================================== */
+var API_URL = 'https://script.google.com/macros/s/AKfycby81F3h75RqWWGFqO7iph2ZEHjOV5dcN8xaG7BK2JxkKmNcJ5PkwSXSsqAc6DQBau1m/exec';
+
+var TOKEN = null, ADMIN_TOKEN = null, USER = null;
+var JOBS = [], MYAPPS = [], ADM_JOBS = [], ADM_APPS = [], STATUS_LIST = [];
+var CUR_JOB = null, PENDING_APPLY = null;
+
+/* ---------- API helper ---------- */
+function api(payload, cb, errCb) {
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', API_URL, true);
+  xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState !== 4) return;
+    if (xhr.status >= 200 && xhr.status < 400) {
+      var res;
+      try { res = JSON.parse(xhr.responseText); }
+      catch (e) { if (errCb) errCb(); return; }
+      cb(res);
+    } else {
+      if (errCb) errCb();
+    }
+  };
+  xhr.send(JSON.stringify(payload));
+}
+
+function el(id){ return document.getElementById(id); }
+function esc(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(msg){ var t = el('toast'); t.innerText = msg; t.style.display='block'; setTimeout(function(){ t.style.display='none'; },3200); }
+function setMsg(id,msg){ var e = el(id); e.innerText = msg || ''; e.style.display = msg ? 'block' : 'none'; }
+function openModal(id){ el(id).className='modal show'; }
+function closeModal(id){ el(id).className='modal'; }
+
+/* ---------- Init ---------- */
+window.onload = function() {
+  try {
+    TOKEN = localStorage.getItem('cgj_token');
+    ADMIN_TOKEN = localStorage.getItem('cgj_admin');
+  } catch(e){}
+  if (TOKEN) {
+    api({ action:'checkSession', token: TOKEN }, function(res) {
+      if (res.ok) { USER = res.candidate; setAuthUI(); loadJobs(); }
+      else { TOKEN = null; try{ localStorage.removeItem('cgj_token'); }catch(e){} loadJobs(); }
+    }, function(){ loadJobs(); });
+  } else {
+    loadJobs();
+  }
+};
+
+function setAuthUI() {
+  var logged = !!USER;
+  el('btnSignin').style.display = logged ? 'none' : 'inline-block';
+  el('btnSignout').style.display = logged ? 'inline-block' : 'none';
+  el('heroBox').style.display = logged ? 'none' : 'block';
+  el('jobsHeading').innerText = logged ? ('Jobs for you, ' + USER.name.split(' ')[0]) : 'Jobs for you';
+}
+
+/* ---------- Navigation ---------- */
+function go(view) {
+  var views = ['home','detail','myjobs','profile','admin'];
+  for (var i = 0; i < views.length; i++) {
+    var v = el('v_' + views[i]);
+    if (v) v.style.display = (views[i] === view) ? 'block' : 'none';
+  }
+  var navs = ['home','myjobs','profile'];
+  for (var n = 0; n < navs.length; n++) {
+    var active = (navs[n] === view);
+    el('bn_' + navs[n]).className = active ? 'active' : '';
+    el('tn_' + navs[n]).className = active ? 'active' : '';
+  }
+  if (view === 'myjobs') loadMyJobs();
+  if (view === 'profile') renderProfile();
+  window.scrollTo(0,0);
+}
+
+/* ---------- Jobs (public KPI cards) ---------- */
+function loadJobs() {
+  el('spinHome').style.display = 'block';
+  api({ action:'getJobs', token: TOKEN }, function(res) {
+    el('spinHome').style.display = 'none';
+    if (res.ok) { JOBS = res.jobs; renderJobs(); }
+  }, function() {
+    el('spinHome').style.display = 'none';
+    el('jobList').innerHTML = '<div class="emptybox">Could not load jobs. Please check your internet and refresh.</div>';
+  });
+}
+
+function renderJobs() {
+  var qw = el('qWhat').value.toLowerCase();
+  var ql = el('qWhere').value.toLowerCase();
+  var html = '', count = 0;
+  for (var i = 0; i < JOBS.length; i++) {
+    var j = JOBS[i];
+    var hay1 = (j.title + ' ' + j.company + ' ' + j.skills).toLowerCase();
+    var hay2 = String(j.location).toLowerCase();
+    if (qw && hay1.indexOf(qw) === -1) continue;
+    if (ql && hay2.indexOf(ql) === -1) continue;
+    count++;
+    html += '<div class="jcard" onclick="openDetail(\'' + j.jobId + '\')">' +
+      '<div class="pillrow"><span class="pill-easy">Easily apply</span></div>' +
+      '<svg class="bkmark" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg>' +
+      '<div class="jtitle">' + esc(j.title) + '</div>' +
+      '<div class="jcomp">' + esc(j.company) + '</div>' +
+      '<div class="jloc">' + esc(j.location) + '</div>' +
+      '<div class="chiprow">' +
+        (j.salary ? '<span class="chip">&#8377;' + esc(j.salary) + '</span>' : '') +
+        (j.jobType ? '<span class="chip chip-green">' + esc(j.jobType) + '</span>' : '') +
+      '</div>' +
+      '<div class="postedon">Posted: ' + esc(j.postedDate) + '</div>' +
+    '</div>';
+  }
+  el('jobList').innerHTML = count ? html : '<div class="emptybox">No jobs found for your search.</div>';
+}
+
+/* ---------- Job detail ---------- */
+function openDetail(jobId) {
+  CUR_JOB = null;
+  for (var i = 0; i < JOBS.length; i++) if (JOBS[i].jobId === jobId) CUR_JOB = JOBS[i];
+  if (!CUR_JOB) return;
+  var j = CUR_JOB;
+  var logged = !!USER;
+  var html =
+    '<div class="dttl">' + esc(j.title) + '</div>' +
+    '<span class="dcomp">' + esc(j.company) + '</span>' +
+    '<div class="dsect"><h3>Job details</h3>' +
+      (j.salary ? '<div class="drow"><svg viewBox="0 0 24 24"><path d="M2 6h20v12H2zm10 3a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg><div><b>&#8377;' + esc(j.salary) + '</b></div></div>' : '') +
+      '<div class="drow"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 10.4 4 2.4-.9 1.4L11 13V7h2z"/></svg><div><b>' + esc(j.jobType || 'Full-time') + '</b></div></div>' +
+      '<div class="drow"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 14.5 9 2.5 2.5 0 0 1 12 11.5z"/></svg><div><b>' + esc(j.location) + '</b></div></div>' +
+      (j.skills ? '<div class="drow"><svg viewBox="0 0 24 24"><path d="M9 21H5V3h14v18h-4v-6H9z"/></svg><div>Skills: <b>' + esc(j.skills) + '</b></div></div>' : '') +
+    '</div>' +
+    '<div class="dsect"><h3>Full job description</h3>';
+  if (logged) {
+    html += '<div class="ddesc">' + esc(j.description || 'No description added.') + '</div>';
+  } else {
+    html += '<div class="lockbox"><p>&#128274; Sign in to view the full job description and apply for this job.</p>' +
+      '<button class="getstarted" onclick="openLogin(\'user\')">Sign in to continue</button></div>';
+  }
+  html += '</div>' +
+    '<div class="applybar"><button class="applybtn" onclick="startApply()">Apply Now</button></div>';
+  el('detailBody').innerHTML = html;
+  el('v_home').style.display = 'none';
+  el('v_detail').style.display = 'block';
+  window.scrollTo(0,0);
+}
+
+/* ---------- Login ---------- */
+function openLogin(tab) {
+  loginTab(tab || 'user');
+  el('u_step1').style.display = 'block';
+  el('u_step2').style.display = 'none';
+  el('u_reg').style.display = 'none';
+  setMsg('u_err',''); setMsg('u_oerr',''); setMsg('a_err','');
+  openModal('mLogin');
+}
+function loginTab(t) {
+  el('pane_user').style.display = (t === 'user') ? 'block' : 'none';
+  el('pane_admin').style.display = (t === 'admin') ? 'block' : 'none';
+  el('lt_user').className = (t === 'user') ? 'active' : '';
+  el('lt_admin').className = (t === 'admin') ? 'active' : '';
+}
+function backToStep1() {
+  el('u_step1').style.display = 'block';
+  el('u_step2').style.display = 'none';
+}
+function sendOtpClick() {
+  var id = el('u_id').value.trim();
+  setMsg('u_err','');
+  if (!id) { setMsg('u_err','Please enter email or mobile number.'); return; }
+  var regData = null;
+  if (el('u_reg').style.display === 'block') {
+    var nm = el('u_name').value.trim();
+    var mb = el('u_mobile').value.trim();
+    if (!nm || !/^[6-9][0-9]{9}$/.test(mb)) { setMsg('u_err','Please enter your name and a valid 10-digit mobile number.'); return; }
+    regData = { name: nm, mobile: mb };
+  }
+  el('u_send').disabled = true; el('u_send').innerText = 'Sending...';
+  api({ action:'sendOtp', identifier: id, regData: regData }, function(res) {
+    el('u_send').disabled = false; el('u_send').innerText = 'Send OTP';
+    if (res.ok) {
+      setMsg('u_sent', res.msg);
+      el('u_step1').style.display = 'none';
+      el('u_step2').style.display = 'block';
+      el('u_otp').value = '';
+    } else if (res.needRegister) {
+      el('u_reg').style.display = 'block';
+      setMsg('u_err', res.msg);
+    } else {
+      setMsg('u_err', res.msg);
+    }
+  }, function() {
+    el('u_send').disabled = false; el('u_send').innerText = 'Send OTP';
+    setMsg('u_err','Network error. Please try again.');
+  });
+}
+function verifyOtpClick() {
+  var id = el('u_id').value.trim();
+  var otp = el('u_otp').value.trim();
+  setMsg('u_oerr','');
+  if (otp.length !== 6) { setMsg('u_oerr','Please enter the 6-digit OTP.'); return; }
+  el('u_verify').disabled = true; el('u_verify').innerText = 'Verifying...';
+  api({ action:'verifyOtp', identifier: id, otp: otp }, function(res) {
+    el('u_verify').disabled = false; el('u_verify').innerText = 'Verify & Sign in';
+    if (res.ok) {
+      TOKEN = res.token; USER = res.candidate;
+      try { localStorage.setItem('cgj_token', TOKEN); } catch(e){}
+      closeModal('mLogin');
+      setAuthUI();
+      toast('Welcome, ' + USER.name + '!');
+      loadJobs();
+      if (CUR_JOB) openDetail(CUR_JOB.jobId);
+      if (PENDING_APPLY) { startApply(); }
+    } else {
+      setMsg('u_oerr', res.msg);
+    }
+  }, function() {
+    el('u_verify').disabled = false; el('u_verify').innerText = 'Verify & Sign in';
+    setMsg('u_oerr','Network error. Please try again.');
+  });
+}
+function adminLoginClick() {
+  var em = el('a_email').value.trim();
+  var pw = el('a_pass').value;
+  setMsg('a_err','');
+  if (!em || !pw) { setMsg('a_err','Please enter email and password.'); return; }
+  el('a_btn').disabled = true; el('a_btn').innerText = 'Signing in...';
+  api({ action:'adminLogin', email: em, password: pw }, function(res) {
+    el('a_btn').disabled = false; el('a_btn').innerText = 'Sign in as Admin';
+    if (res.ok) {
+      ADMIN_TOKEN = res.token;
+      try { localStorage.setItem('cgj_admin', ADMIN_TOKEN); } catch(e){}
+      closeModal('mLogin');
+      toast('Welcome, ' + res.name + '!');
+      go('admin');
+      admTab('jobs');
+    } else {
+      setMsg('a_err', res.msg);
+    }
+  }, function() {
+    el('a_btn').disabled = false; el('a_btn').innerText = 'Sign in as Admin';
+    setMsg('a_err','Network error. Please try again.');
+  });
+}
+function doLogout() {
+  if (TOKEN) api({ action:'logout', token: TOKEN }, function(){});
+  TOKEN = null; USER = null; ADMIN_TOKEN = null;
+  try { localStorage.removeItem('cgj_token'); localStorage.removeItem('cgj_admin'); } catch(e){}
+  setAuthUI();
+  go('home');
+  loadJobs();
+  toast('Signed out successfully.');
+}
+
+/* ---------- Apply ---------- */
+function startApply() {
+  if (!USER) { PENDING_APPLY = true; openLogin('user'); return; }
+  PENDING_APPLY = null;
+  if (!CUR_JOB) return;
+  el('ap_title').innerText = 'Apply: ' + CUR_JOB.title;
+  setMsg('ap_err','');
+  el('ap_file').value = '';
+  if (USER.resumeUrl) {
+    el('ap_choice').style.display = 'block';
+    el('ap_filefld').style.display = 'none';
+    var radios = document.getElementsByName('ap_mode');
+    radios[0].checked = true;
+    radios[0].onclick = function(){ el('ap_filefld').style.display = 'none'; };
+    radios[1].onclick = function(){ el('ap_filefld').style.display = 'block'; };
+  } else {
+    el('ap_choice').style.display = 'none';
+    el('ap_filefld').style.display = 'block';
+  }
+  openModal('mApply');
+}
+function readFileB64(input, cb) {
+  var f = input.files[0];
+  if (!f) { cb(null); return; }
+  if (f.size > 5 * 1024 * 1024) { cb('TOO_BIG'); return; }
+  var r = new FileReader();
+  r.onload = function(e) { cb({ base64: e.target.result.split(',')[1], name: f.name, mime: f.type || 'application/octet-stream' }); };
+  r.readAsDataURL(f);
+}
+function submitApply() {
+  setMsg('ap_err','');
+  var useExisting = false;
+  if (el('ap_choice').style.display === 'block') {
+    useExisting = document.getElementsByName('ap_mode')[0].checked;
+  }
+  var doIt = function(fileObj) {
+    el('ap_submit').disabled = true; el('ap_submit').innerText = 'Submitting...';
+    api({ action:'apply', token: TOKEN, jobId: CUR_JOB.jobId, file: fileObj }, function(res) {
+      el('ap_submit').disabled = false; el('ap_submit').innerText = 'Submit Application';
+      if (res.ok) {
+        closeModal('mApply');
+        toast(res.msg);
+      } else if (res.needLogin) {
+        closeModal('mApply'); openLogin('user');
+      } else {
+        setMsg('ap_err', res.msg);
+      }
+    }, function() {
+      el('ap_submit').disabled = false; el('ap_submit').innerText = 'Submit Application';
+      setMsg('ap_err','Upload failed. Please try again.');
+    });
+  };
+  if (useExisting) { doIt(null); return; }
+  readFileB64(el('ap_file'), function(fileObj) {
+    if (fileObj === 'TOO_BIG') { setMsg('ap_err','File is too large. Maximum size is 5 MB.'); return; }
+    if (!fileObj) { setMsg('ap_err','Please select your resume file.'); return; }
+    doIt(fileObj);
+  });
+}
+
+/* ---------- My jobs ---------- */
+function loadMyJobs() {
+  if (!USER) { el('myList').innerHTML = '<div class="emptybox">Please sign in to see your applications.<br><br><button class="getstarted" onclick="openLogin(\'user\')">Sign in</button></div>'; return; }
+  el('spinMy').style.display = 'block';
+  api({ action:'myApps', token: TOKEN }, function(res) {
+    el('spinMy').style.display = 'none';
+    if (!res.ok) { el('myList').innerHTML = '<div class="emptybox">Please sign in again.</div>'; return; }
+    if (!res.apps.length) { el('myList').innerHTML = '<div class="emptybox">You have not applied to any job yet.</div>'; return; }
+    var html = '';
+    for (var i = 0; i < res.apps.length; i++) {
+      var a = res.apps[i];
+      html += '<div class="jcard" style="cursor:default">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">' +
+          '<div class="jtitle" style="padding:0">' + esc(a.jobTitle) + '</div>' +
+          '<span class="badge b-' + String(a.status).replace(/ /g,'') + '">' + esc(a.status) + '</span>' +
+        '</div>' +
+        '<div class="postedon">Applied: ' + esc(a.appliedDate) + ' &bull; Last update: ' + esc(a.lastUpdate) + '</div>' +
+        (a.statusNote ? '<div class="note"><b>Recruiter note:</b> ' + esc(a.statusNote) + '</div>' : '') +
+        '<div style="margin-top:10px"><a href="' + esc(a.resumeUrl) + '" target="_blank"><button class="smallbtn">View my resume</button></a></div>' +
+      '</div>';
+    }
+    el('myList').innerHTML = html;
+  }, function(){ el('spinMy').style.display = 'none'; });
+}
+
+/* ---------- Profile ---------- */
+function renderProfile() {
+  if (!USER) { el('profileBody').innerHTML = '<div class="emptybox">Please sign in to see your profile.<br><br><button class="getstarted" onclick="openLogin(\'user\')">Sign in</button></div>'; return; }
+  el('profileBody').innerHTML =
+    '<div class="acard">' +
+      '<div class="fld"><label>Full Name</label><input type="text" id="pf_name" value="' + esc(USER.name) + '"></div>' +
+      '<div class="fld"><label>Email (cannot be changed)</label><input type="text" value="' + esc(USER.email) + '" disabled style="background:#f3f2f1"></div>' +
+      '<div class="fld"><label>Mobile Number</label><input type="text" id="pf_mobile" maxlength="10" value="' + esc(USER.mobile) + '"></div>' +
+      '<div class="fld"><label>Resume (PDF/DOC, max 5 MB)</label><input type="file" id="pf_file" accept=".pdf,.doc,.docx"></div>' +
+      (USER.resumeUrl ? '<div style="margin-bottom:10px"><a href="' + esc(USER.resumeUrl) + '" target="_blank" style="color:var(--blue);font-size:14px">View current resume</a></div>' : '<div class="postedon" style="margin-bottom:10px">No resume uploaded yet.</div>') +
+      '<div class="errmsg" id="pf_err"></div>' +
+      '<div class="okmsg" id="pf_ok"></div>' +
+      '<button class="mbtn" id="pf_save" onclick="saveProfile()">Save Profile</button>' +
+    '</div>';
+}
+function saveProfile() {
+  setMsg('pf_err',''); setMsg('pf_ok','');
+  var name = el('pf_name').value.trim();
+  var mobile = el('pf_mobile').value.trim();
+  if (!name) { setMsg('pf_err','Please enter your name.'); return; }
+  var doIt = function(fileObj) {
+    el('pf_save').disabled = true; el('pf_save').innerText = 'Saving...';
+    api({ action:'updateProfile', token: TOKEN, name: name, mobile: mobile, file: fileObj }, function(res) {
+      el('pf_save').disabled = false; el('pf_save').innerText = 'Save Profile';
+      if (res.ok) { USER = res.candidate; renderProfile(); toast(res.msg); }
+      else if (res.needLogin) { openLogin('user'); }
+      else { setMsg('pf_err', res.msg); }
+    }, function() {
+      el('pf_save').disabled = false; el('pf_save').innerText = 'Save Profile';
+      setMsg('pf_err','Network error. Please try again.');
+    });
+  };
+  readFileB64(el('pf_file'), function(fileObj) {
+    if (fileObj === 'TOO_BIG') { setMsg('pf_err','File is too large. Maximum size is 5 MB.'); return; }
+    doIt(fileObj);
+  });
+}
+
+/* ---------- Admin ---------- */
+function admTab(t) {
+  el('admJobsPane').style.display = (t === 'jobs') ? 'block' : 'none';
+  el('admAppsPane').style.display = (t === 'apps') ? 'block' : 'none';
+  el('at_jobs').className = (t === 'jobs') ? 'active' : '';
+  el('at_apps').className = (t === 'apps') ? 'active' : '';
+  if (t === 'jobs') admLoadJobs();
+  if (t === 'apps') admLoadApps();
+}
+function admLoadJobs() {
+  el('spinAdm').style.display = 'block';
+  api({ action:'adminJobs', token: ADMIN_TOKEN }, function(res) {
+    el('spinAdm').style.display = 'none';
+    if (!res.ok) { toast('Admin session expired. Please sign in again.'); openLogin('admin'); return; }
+    ADM_JOBS = res.jobs;
+    var html = '';
+    for (var i = 0; i < ADM_JOBS.length; i++) {
+      var j = ADM_JOBS[i];
+      html += '<div class="acard">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">' +
+          '<div><b>' + esc(j.title) + '</b> &mdash; ' + esc(j.company) + '<br><span class="postedon">' + esc(j.location) + ' &bull; ' + esc(j.jobType) + ' &bull; Posted: ' + esc(j.postedDate) + '</span></div>' +
+          '<span class="badge b-' + esc(j.status) + '">' + esc(j.status) + '</span>' +
+        '</div>' +
+        '<div style="margin-top:10px;display:flex;gap:8px">' +
+          '<button class="smallbtn" onclick="admEditJob(\'' + j.jobId + '\')">Edit</button>' +
+          (j.status === 'Active'
+            ? '<button class="redbtn" onclick="admToggle(\'' + j.jobId + '\',\'Closed\')">Close</button>'
+            : '<button class="greenbtn" onclick="admToggle(\'' + j.jobId + '\',\'Active\')">Reopen</button>') +
+        '</div></div>';
+    }
+    el('admJobList').innerHTML = html || '<div class="emptybox">No jobs posted yet.</div>';
+  }, function(){ el('spinAdm').style.display = 'none'; });
+}
+function admEditJob(jobId) {
+  var j = null;
+  for (var i = 0; i < ADM_JOBS.length; i++) if (ADM_JOBS[i].jobId === jobId) j = ADM_JOBS[i];
+  if (!j) return;
+  el('jf_id').value = j.jobId;
+  el('jf_title').value = j.title; el('jf_company').value = j.company;
+  el('jf_location').value = j.location; el('jf_salary').value = j.salary;
+  el('jf_type').value = j.jobType || 'Full-time'; el('jf_skills').value = j.skills;
+  el('jf_desc').value = j.description;
+  el('jfTitle').innerText = 'Edit Job: ' + j.title;
+  window.scrollTo(0,0);
+}
+function admResetForm() {
+  el('jf_id').value=''; el('jf_title').value=''; el('jf_company').value='';
+  el('jf_location').value=''; el('jf_salary').value=''; el('jf_skills').value='';
+  el('jf_desc').value=''; el('jf_type').value='Full-time';
+  el('jfTitle').innerText = 'Post New Job';
+  setMsg('jf_err',''); setMsg('jf_ok','');
+}
+function admSaveJob() {
+  setMsg('jf_err',''); setMsg('jf_ok','');
+  var job = {
+    jobId: el('jf_id').value,
+    title: el('jf_title').value.trim(),
+    company: el('jf_company').value.trim(),
+    location: el('jf_location').value.trim(),
+    salary: el('jf_salary').value.trim(),
+    jobType: el('jf_type').value,
+    skills: el('jf_skills').value.trim(),
+    description: el('jf_desc').value.trim()
+  };
+  if (!job.title || !job.company || !job.location || !job.description) {
+    setMsg('jf_err','Please fill Title, Company, Location and Description.');
+    return;
+  }
+  el('jf_save').disabled = true; el('jf_save').innerText = 'Saving...';
+  api({ action:'adminSaveJob', token: ADMIN_TOKEN, job: job }, function(res) {
+    el('jf_save').disabled = false; el('jf_save').innerText = 'Save Job';
+    if (res.ok) { setMsg('jf_ok', res.msg); admResetForm(); admLoadJobs(); }
+    else if (res.needLogin) { openLogin('admin'); }
+    else { setMsg('jf_err', res.msg); }
+  }, function() {
+    el('jf_save').disabled = false; el('jf_save').innerText = 'Save Job';
+    setMsg('jf_err','Network error. Please try again.');
+  });
+}
+function admToggle(jobId, status) {
+  api({ action:'adminToggleJob', token: ADMIN_TOKEN, jobId: jobId, status: status }, function(res) {
+    if (res.ok) { toast(res.msg); admLoadJobs(); }
+    else if (res.needLogin) { openLogin('admin'); }
+  });
+}
+function admLoadApps() {
+  el('spinAdm').style.display = 'block';
+  api({ action:'adminApps', token: ADMIN_TOKEN }, function(res) {
+    el('spinAdm').style.display = 'none';
+    if (!res.ok) { toast('Admin session expired. Please sign in again.'); openLogin('admin'); return; }
+    ADM_APPS = res.apps; STATUS_LIST = res.statusList;
+    var st = '<option value="">All Status</option>';
+    for (var s = 0; s < STATUS_LIST.length; s++) st += '<option>' + STATUS_LIST[s] + '</option>';
+    el('af_status').innerHTML = st;
+    admRenderApps();
+  }, function(){ el('spinAdm').style.display = 'none'; });
+}
+function admRenderApps() {
+  var fs = el('af_status').value;
+  var q = el('af_q').value.toLowerCase();
+  var html = '', count = 0;
+  for (var i = 0; i < ADM_APPS.length; i++) {
+    var a = ADM_APPS[i];
+    if (fs && a.status !== fs) continue;
+    var hay = (a.name + ' ' + a.email + ' ' + a.mobile).toLowerCase();
+    if (q && hay.indexOf(q) === -1) continue;
+    count++;
+    var stOpts = '';
+    for (var s = 0; s < STATUS_LIST.length; s++) {
+      stOpts += '<option' + (STATUS_LIST[s] === a.status ? ' selected' : '') + '>' + STATUS_LIST[s] + '</option>';
+    }
+    html += '<div class="acard">' +
+      '<div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;align-items:center">' +
+        '<div><b>' + esc(a.name) + '</b> &mdash; ' + esc(a.jobTitle) + '<br><span class="postedon">' + esc(a.email) + ' &bull; ' + esc(a.mobile) + ' &bull; Applied: ' + esc(a.appliedDate) + '</span></div>' +
+        '<span class="badge b-' + String(a.status).replace(/ /g,'') + '">' + esc(a.status) + '</span>' +
+      '</div>' +
+      '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center">' +
+        '<a href="' + esc(a.resumeUrl) + '" target="_blank"><button class="smallbtn">Resume</button></a>' +
+        '<select class="selst" id="ast_' + a.appId + '">' + stOpts + '</select>' +
+        '<input type="text" class="selst" id="anote_' + a.appId + '" placeholder="Note for candidate (optional)" style="flex:1;min-width:140px" value="' + esc(a.statusNote) + '">' +
+        '<button class="greenbtn" onclick="admUpdate(\'' + a.appId + '\')">Update &amp; Email</button>' +
+      '</div></div>';
+  }
+  el('admAppList').innerHTML = count ? html : '<div class="emptybox">No applications found.</div>';
+}
+function admUpdate(appId) {
+  var status = el('ast_' + appId).value;
+  var note = el('anote_' + appId).value.trim();
+  api({ action:'adminStatus', token: ADMIN_TOKEN, appId: appId, status: status, note: note }, function(res) {
+    if (res.ok) { toast(res.msg); admLoadApps(); }
+    else if (res.needLogin) { openLogin('admin'); }
+    else { toast(res.msg); }
+  });
+}
+</script>
+</body>
+</html>
