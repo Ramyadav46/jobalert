@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Job Alert - Your next job starts here</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root{--blue:#2557a7;--blue-dark:#1e4687;--navy:#0d2d5e;--text:#2d2d2d;--muted:#595959;--line:#e4e2e0;--chip:#f3f2f1;--green:#1f662c;--green-bg:#e4f2e6;--pill:#e8f0fe;--red:#d93025;}
 *{margin:0;padding:0;box-sizing:border-box;font-family:"Segoe UI",Arial,sans-serif;}
@@ -336,6 +337,13 @@ body.empmode .navlinks,body.empmode #navIcons,body.empmode .umenu{display:none!i
 .ftr a:hover{text-decoration:underline;}
 @media(min-width:900px){.ftr{padding-bottom:26px;}}
 body.empmode .ftr{display:none;}
+/* ===== My jobs page — centered layout ===== */
+#v_myjobs .wrap{max-width:900px;margin:0 auto;text-align:center;padding-left:16px;padding-right:16px;}
+#v_myjobs .wtitle,#v_myjobs .secttl{text-align:center;}
+#v_myjobs .mjtabs{justify-content:center;}
+#v_myjobs .emptybox,#v_myjobs .bigempty{text-align:center;}
+#v_myjobs .jcard,#v_myjobs .acard,#v_myjobs .note{text-align:left;}
+#v_myjobs .getstarted{margin:0 auto;display:inline-block;}
 </style>
 </head>
 <body>
@@ -367,7 +375,7 @@ body.empmode .ftr{display:none;}
    <div class="uemail" id="umEmail"></div>
    <a onclick="go('profile')"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z"/></svg>Profile</a>
    <a onclick="go('companies')"><svg viewBox="0 0 24 24"><path d="m12 2 3 6.5 7 .8-5.2 4.7 1.5 6.9L12 17.4 5.7 20.9l1.5-6.9L2 9.3l7-.8z"/></svg>Reviews</a>
-   <a onclick="go('profile')"><svg viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 4 4 4 4 0 0 0-4-4zm9 4-2-1.2.3-2.3-2.2-1.3-1.8 1.5-2.1-.9L12 5.5l-1.2 2.3-2.1.9-1.8-1.5L4.7 8.5 5 10.8 3 12l2 1.2-.3 2.3 2.2 1.3 1.8-1.5 2.1.9L12 18.5l1.2-2.3 2.1-.9 1.8 1.5 2.2-1.3-.3-2.3z"/></svg>Settings</a>
+   <a onclick="changePasswordClick()"><svg viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 4 4 4 4 0 0 0-4-4zm9 4-2-1.2.3-2.3-2.2-1.3-1.8 1.5-2.1-.9L12 5.5l-1.2 2.3-2.1.9-1.8-1.5L4.7 8.5 5 10.8 3 12l2 1.2-.3 2.3 2.2 1.3 1.8-1.5 2.1.9L12 18.5l1.2-2.3 2.1-.9 1.8 1.5 2.2-1.3-.3-2.3z"/></svg>Change password</a>
    <a onclick="toast('Country: India (English)')"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 2c1.9 0 3.6 2.7 4.2 6H7.8C8.4 6.7 10.1 4 12 4zM4.3 11h3.3a22 22 0 0 0 0 2H4.3a8 8 0 0 1 0-2zm3.5 4h8.4c-.6 3.3-2.3 6-4.2 6s-3.6-2.7-4.2-6zm8.6-2a22 22 0 0 0 0-2h3.3a8 8 0 0 1 0 2z"/></svg><span>Country and language<span class="usub">IN India (English)</span></span></a>
    <a onclick="toast('Help: support@jobalert.in')"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 15h-2v-2h2zm1.6-6.2-.9.9a2.5 2.5 0 0 0-.7 2h-2v-.5a3.4 3.4 0 0 1 1-2.3l1.2-1.2a1.6 1.6 0 1 0-2.7-1.2H8.5a3.5 3.5 0 1 1 6.1 2.3z"/></svg>Help</a>
    <a onclick="toast('Privacy Centre — your data is stored securely.')"><svg viewBox="0 0 24 24"><path d="M12 1 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5z"/></svg>Privacy Centre</a>
@@ -587,6 +595,46 @@ body.empmode .ftr{display:none;}
 
 <!-- ===== SEEKER AUTH MODAL ===== -->
 <div class="modal" id="mAuth"><div class="mbox">
+  <div class="mtitle" id="auth_title">Sign in as Job Seeker</div>
+  <div class="msub">Sign in or create an account to view full job details and apply.</div>
+  <div id="gBtnBox" style="display:flex;justify-content:center;margin:6px 0 14px"></div>
+  <div id="gDivider" style="display:flex;align-items:center;gap:12px;color:#767676;font-size:13px;margin-bottom:12px">
+    <span style="flex:1;height:1px;background:#e4e2e0"></span>or<span style="flex:1;height:1px;background:#e4e2e0"></span>
+  </div>
+  <div class="subtabs">
+    <button id="alt_login" class="active" onclick="authTab('login')">Login</button>
+    <button id="alt_reg" onclick="authTab('reg')">Create Account</button>
+  </div>
+
+  <div id="authLoginPane">
+    <div class="fld"><label>Email or Mobile Number</label><input type="text" id="au_email" placeholder="you@email.com or 9876543210"></div>
+    <div class="fld"><label>Password</label><input type="password" id="au_pass"></div>
+    <div class="errmsg" id="au_err"></div>
+    <button class="mbtn" id="au_btn" onclick="candLoginClick()">Login</button>
+    <button class="mlink" onclick="authTab('forgot')">Forgot password?</button>
+  </div>
+
+  <div id="authRegPane" style="display:none">
+    <div class="grid2">
+      <div class="fld"><label>Full Name *</label><input type="text" id="ar_name"></div>
+      <div class="fld"><label>Email *</label><input type="text" id="ar_email" placeholder="you@email.com"></div>
+      <div class="fld"><label>Mobile Number *</label><input type="text" id="ar_mobile" maxlength="10"></div>
+      <div class="fld"><label>Password * (min 6 characters)</label><input type="password" id="ar_pass"></div>
+    </div>
+    <div class="errmsg" id="ar_err"></div><div class="okmsg" id="ar_ok"></div>
+    <button class="mbtn" id="ar_btn" onclick="candRegClick()">Create Account</button>
+  </div>
+
+  <div id="authForgotPane" style="display:none">
+    <div class="msub" style="margin-bottom:12px">Enter your registered email or mobile. A new password will be sent to your email.</div>
+    <div class="fld"><label>Email or Mobile Number</label><input type="text" id="af_email"></div>
+    <div class="errmsg" id="af_err"></div><div class="okmsg" id="af_ok"></div>
+    <button class="mbtn" id="af_btn" onclick="candForgotClick()">Send New Password</button>
+    <button class="mlink" onclick="authTab('login')">Back to login</button>
+  </div>
+
+  <button class="mlink" onclick="closeModal('mAuth')">Cancel</button>
+</div></div>
   <div class="mtitle" id="auth_title">Sign in as Job Seeker</div>
   <div class="msub">Sign in or create an account to view full job details and apply.</div>
   <div id="au_step1">
@@ -998,8 +1046,98 @@ function openDetail(jobId){
 }
 function drow(path,txt){return '<div class="drow"><svg viewBox="0 0 24 24"><path d="'+path+'"/></svg><div>'+txt+'</div></div>';}
 
-/* ===== Seeker auth ===== */
-function openAuth(){AUTH_MODE='login';el('au_step1').style.display='block';el('au_step2').style.display='none';el('au_reg').style.display='none';el('auth_title').innerText='Sign in as Job Seeker';el('au_toggle').innerText='New here? Create an account';setMsg('au_err','');setMsg('au_oerr','');openModal('mAuth');}
+/* ===== Google Sign-In ===== */
+var GOOGLE_CLIENT_ID='PASTE_YOUR_CLIENT_ID.apps.googleusercontent.com';
+var G_READY=false;
+function initGoogleBtn(){
+  if(GOOGLE_CLIENT_ID.indexOf('PASTE_')===0||typeof google==='undefined'||!google.accounts||!google.accounts.id){
+    el('gBtnBox').style.display='none';el('gDivider').style.display='none';return;
+  }
+  el('gBtnBox').style.display='flex';el('gDivider').style.display='flex';
+  if(!G_READY){
+    google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID,callback:onGoogleCredential});
+    G_READY=true;
+  }
+  el('gBtnBox').innerHTML='';
+  google.accounts.id.renderButton(el('gBtnBox'),{theme:'outline',size:'large',width:320,text:'continue_with',shape:'rectangular'});
+}
+function onGoogleCredential(resp){
+  if(!resp||!resp.credential){toast('Google sign-in cancelled.');return;}
+  setMsg('au_err','');
+  toast('Verifying your Google account...');
+  api({action:'googleLogin',idToken:resp.credential},function(r){
+    if(r.ok){
+      afterCandLogin(r);
+      if(r.isNew||!r.candidate.Mobile)setTimeout(function(){toast('Please add your mobile number and resume in your profile.');},2200);
+    } else setMsg('au_err',r.msg);
+  },function(){setMsg('au_err','Network error. Try again.');});
+}
+
+/* ===== Seeker auth (email + password) ===== */
+function openAuth(){
+  authTab('login');
+  setMsg('au_err','');setMsg('ar_err','');setMsg('ar_ok','');setMsg('af_err','');setMsg('af_ok','');
+  openModal('mAuth');
+  setTimeout(initGoogleBtn,150);
+}
+function authTab(t){
+  el('authLoginPane').style.display=(t==='login')?'block':'none';
+  el('authRegPane').style.display=(t==='reg')?'block':'none';
+  el('authForgotPane').style.display=(t==='forgot')?'block':'none';
+  el('alt_login').className=(t==='login'||t==='forgot')?'active':'';
+  el('alt_reg').className=(t==='reg')?'active':'';
+  el('auth_title').innerText=(t==='reg')?'Create Job Seeker Account':(t==='forgot'?'Reset Your Password':'Sign in as Job Seeker');
+}
+function afterCandLogin(r){
+  TOKEN=r.token;USER=r.candidate;
+  try{localStorage.setItem('ja_tok',TOKEN);}catch(e){}
+  closeModal('mAuth');setAuthUI();toast('Welcome, '+USER.Name+'!');
+  loadJobs();
+  if(CUR_JOB)openDetail(CUR_JOB.jobId);
+  if(PENDING_APPLY)startApply();
+}
+function candLoginClick(){
+  var em=el('au_email').value.trim(),pw=el('au_pass').value;setMsg('au_err','');
+  if(!em||!pw){setMsg('au_err','Enter email/mobile and password.');return;}
+  el('au_btn').disabled=true;el('au_btn').innerText='Logging in...';
+  api({action:'candLogin',email:em,password:pw},function(r){
+    el('au_btn').disabled=false;el('au_btn').innerText='Login';
+    if(r.ok)afterCandLogin(r);
+    else setMsg('au_err',r.msg);
+  },function(){el('au_btn').disabled=false;el('au_btn').innerText='Login';setMsg('au_err','Network error. Try again.');});
+}
+function candRegClick(){
+  setMsg('ar_err','');setMsg('ar_ok','');
+  var c={name:el('ar_name').value.trim(),email:el('ar_email').value.trim(),mobile:el('ar_mobile').value.trim(),password:el('ar_pass').value};
+  if(!c.name||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email)||!/^[6-9][0-9]{9}$/.test(c.mobile)){setMsg('ar_err','Enter name, valid email and 10-digit mobile number.');return;}
+  if(!c.password||c.password.length<6){setMsg('ar_err','Password must be at least 6 characters.');return;}
+  el('ar_btn').disabled=true;el('ar_btn').innerText='Creating...';
+  api({action:'candRegister',cand:c},function(r){
+    el('ar_btn').disabled=false;el('ar_btn').innerText='Create Account';
+    if(r.ok){setMsg('ar_ok',r.msg);el('au_email').value=c.email;setTimeout(function(){authTab('login');},1200);}
+    else setMsg('ar_err',r.msg);
+  },function(){el('ar_btn').disabled=false;el('ar_btn').innerText='Create Account';setMsg('ar_err','Network error. Try again.');});
+}
+function candForgotClick(){
+  var em=el('af_email').value.trim();setMsg('af_err','');setMsg('af_ok','');
+  if(!em){setMsg('af_err','Enter your registered email or mobile.');return;}
+  el('af_btn').disabled=true;el('af_btn').innerText='Sending...';
+  api({action:'candForgot',email:em},function(r){
+    el('af_btn').disabled=false;el('af_btn').innerText='Send New Password';
+    if(r.ok){setMsg('af_ok',r.msg);el('au_email').value=em;setTimeout(function(){authTab('login');},2500);}
+    else setMsg('af_err',r.msg);
+  },function(){el('af_btn').disabled=false;el('af_btn').innerText='Send New Password';setMsg('af_err','Network error. Try again.');});
+}
+function changePasswordClick(){
+  if(!USER){openAuth();return;}
+  var oldp=prompt('Enter your current password:');if(oldp===null)return;
+  var newp=prompt('Enter your new password (min 6 characters):');if(newp===null)return;
+  api({action:'candChangePass',token:TOKEN,oldPass:oldp,newPass:newp},function(r){
+    if(r.ok)toast(r.msg);
+    else if(r.needLogin)openAuth();
+    else toast(r.msg);
+  },function(){toast('Network error.');});
+}el('au_step1').style.display='block';el('au_step2').style.display='none';el('au_reg').style.display='none';el('auth_title').innerText='Sign in as Job Seeker';el('au_toggle').innerText='New here? Create an account';setMsg('au_err','');setMsg('au_oerr','');openModal('mAuth');}
 function toggleCreate(){
   AUTH_MODE=(AUTH_MODE==='login')?'reg':'login';
   el('au_reg').style.display=(AUTH_MODE==='reg')?'block':'none';
