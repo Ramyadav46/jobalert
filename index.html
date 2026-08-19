@@ -635,28 +635,6 @@ body.empmode .ftr{display:none;}
 
   <button class="mlink" onclick="closeModal('mAuth')">Cancel</button>
 </div></div>
-  <div class="mtitle" id="auth_title">Sign in as Job Seeker</div>
-  <div class="msub">Sign in or create an account to view full job details and apply.</div>
-  <div id="au_step1">
-    <div class="fld"><label>Email or Mobile Number</label><input type="text" id="au_id" placeholder="you@email.com or 9876543210"></div>
-    <div id="au_reg" style="display:none">
-      <div class="msub" style="margin-bottom:10px">Create your account:</div>
-      <div class="fld"><label>Full Name</label><input type="text" id="au_name"></div>
-      <div class="fld"><label>Mobile Number</label><input type="text" id="au_mobile" maxlength="10"></div>
-    </div>
-    <div class="errmsg" id="au_err"></div>
-    <button class="mbtn" id="au_send" onclick="sendOtpClick()">Send OTP</button>
-    <button class="mlink" onclick="toggleCreate()" id="au_toggle">New here? Create an account</button>
-  </div>
-  <div id="au_step2" style="display:none">
-    <div class="okmsg" id="au_sent" style="display:block"></div>
-    <div class="fld"><label>Enter 6-digit OTP</label><input type="text" id="au_otp" class="otpin" maxlength="6" inputmode="numeric"></div>
-    <div class="errmsg" id="au_oerr"></div>
-    <button class="mbtn" id="au_verify" onclick="verifyOtpClick()">Verify &amp; Continue</button>
-    <button class="mlink" onclick="backStep1()">Change email / mobile</button>
-  </div>
-  <button class="mlink" onclick="closeModal('mAuth')">Cancel</button>
-</div></div>
 
 <!-- ===== EMPLOYER AUTH MODAL ===== -->
 <div class="modal" id="mEmp"><div class="mbox">
@@ -962,92 +940,9 @@ function reportJobClick(jobId){
   api({action:'reportJob',token:TOKEN,jobId:jobId,reason:reason},function(r){toast(r.msg||'Reported.');});
 }
 function drow(path,txt){return '<div class="drow"><svg viewBox="0 0 24 24"><path d="'+path+'"/></svg><div>'+txt+'</div></div>';}
-  var logged=!!USER;
-  el('btnSignin').style.display=logged?'none':'inline-block';
-  el('btnSignout').style.display=logged?'inline-block':'none';
-  el('heroBox').style.display=logged?'none':'block';
-  el('jobsHeading').innerText=logged?('Jobs for you, '+USER.Name.split(' ')[0]):'Jobs for you';
-}
-
-function go(view){
-  var views=['home','detail','myjobs','profile','emp','admin'];
-  for(var i=0;i<views.length;i++){var v=el('v_'+views[i]);if(v)v.style.display=(views[i]===view)?'block':'none';}
-  document.body.className=(view==='emp'||view==='admin')?'empmode':'';
-  var navs=['home','myjobs','profile'];
-  for(var n=0;n<navs.length;n++){var a=(navs[n]===view);el('bn_'+navs[n]).className=a?'active':'';el('tn_'+navs[n]).className=a?'active':'';}
-  if(view==='myjobs')loadMyJobs();
-  if(view==='profile')renderProfile();
-  window.scrollTo(0,0);
-}
-
-/* ===== Filter chips ===== */
-function buildFilterChips(){
-  var html='<div class="fchip active" onclick="setCat(\'\',this)">All</div>';
-  for(var i=0;i<OPT.jobType.length;i++)html+='<div class="fchip" onclick="setCat(\''+OPT.jobType[i]+'\',this)">'+OPT.jobType[i]+'</div>';
-  el('filterRow').innerHTML=html;
-}
-function setCat(c,elm){
-  CAT_FILTER=c;
-  var chips=document.querySelectorAll('.fchip');
-  for(var i=0;i<chips.length;i++)chips[i].className='fchip';
-  elm.className='fchip active';
-  renderJobs();
-}
-
-/* ===== Jobs ===== */
-function loadJobs(){
-  el('spinHome').style.display='block';
-  api({action:'getJobs',token:TOKEN},function(r){
-    el('spinHome').style.display='none';
-    if(r.ok){JOBS=r.jobs;renderJobs();}
-  },function(){el('spinHome').style.display='none';el('jobList').innerHTML='<div class="emptybox">Could not load jobs. Check internet and refresh.</div>';});
-}
-function renderJobs(){
-  var qw=el('qWhat').value.toLowerCase(),ql=el('qWhere').value.toLowerCase(),html='',c=0;
-  for(var i=0;i<JOBS.length;i++){
-    var j=JOBS[i];
-    if(CAT_FILTER&&j.jobType!==CAT_FILTER)continue;
-    if(qw&&(j.title+' '+j.company+' '+j.skills+' '+j.category).toLowerCase().indexOf(qw)===-1)continue;
-    if(ql&&String(j.location).toLowerCase().indexOf(ql)===-1)continue;
-    c++;
-    html+='<div class="jcard" onclick="openDetail(\''+j.jobId+'\')">'+
-      '<div class="pillrow"><span class="pill-easy">Easily apply</span></div>'+
-      '<div class="jtitle">'+esc(j.title)+'</div>'+
-      '<div class="jcomp">'+esc(j.company)+'</div>'+
-      '<div class="jloc">'+esc(j.location)+'</div>'+
-      '<div class="chiprow">'+
-        (j.salary?'<span class="chip">&#8377;'+esc(j.salary)+'</span>':'')+
-        (j.jobType?'<span class="chip chip-green">'+esc(j.jobType)+'</span>':'')+
-        (j.experience?'<span class="chip">'+esc(j.experience)+'</span>':'')+
-      '</div>'+
-      '<div class="postedon">Posted: '+esc(j.postedDate)+(j.lastDate?' &bull; Last date: '+esc(j.lastDate):'')+'</div>'+
-    '</div>';
-  }
-  el('jobList').innerHTML=c?html:'<div class="emptybox">No jobs found for your search.</div>';
-}
-function openDetail(jobId){
-  CUR_JOB=null;for(var i=0;i<JOBS.length;i++)if(JOBS[i].jobId===jobId)CUR_JOB=JOBS[i];
-  if(!CUR_JOB)return;var j=CUR_JOB,logged=!!USER;
-  var html='<div class="dttl">'+esc(j.title)+'</div><span class="dcomp">'+esc(j.company)+'</span>'+
-    '<div class="dsect"><h3>Job details</h3>'+
-    (j.salary?drow('M2 6h20v12H2zm10 3a3 3 0 1 0 0 6 3 3 0 0 0 0-6z','<b>&#8377;'+esc(j.salary)+'</b>'):'')+
-    drow('M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 10.4 4 2.4-.9 1.4L11 13V7h2z','<b>'+esc(j.jobType||'Full-time')+'</b>')+
-    drow('M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7z','<b>'+esc(j.location)+'</b>')+
-    (j.experience?drow('M9 21H5V3h14v18h-4','Experience: <b>'+esc(j.experience)+'</b>'):'')+
-    (j.education?drow('M12 3 1 9l11 6 9-4.9V17h2V9z','Education: <b>'+esc(j.education)+'</b>'):'')+
-    (j.openings?drow('M16 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4z','Openings: <b>'+esc(j.openings)+'</b>'):'')+
-    (j.skills?drow('M9 21H5V3h14v18h-4v-6H9z','Skills: <b>'+esc(j.skills)+'</b>'):'')+
-    '</div><div class="dsect"><h3>Full job description</h3>';
-  if(logged)html+='<div class="ddesc">'+esc(j.description||'No description added.')+'</div>';
-  else html+='<div class="lockbox"><p>&#128274; Sign in to view the full job description and apply.</p><button class="getstarted" onclick="openAuth()">Sign in to continue</button></div>';
-  html+='</div><div class="applybar"><button class="applybtn" onclick="startApply()">Apply Now</button></div>';
-  el('detailBody').innerHTML=html;
-  el('v_home').style.display='none';el('v_detail').style.display='block';window.scrollTo(0,0);
-}
-function drow(path,txt){return '<div class="drow"><svg viewBox="0 0 24 24"><path d="'+path+'"/></svg><div>'+txt+'</div></div>';}
 
 /* ===== Google Sign-In ===== */
-var GOOGLE_CLIENT_ID='PASTE_YOUR_CLIENT_ID.apps.googleusercontent.com';
+var GOOGLE_CLIENT_ID='460670823187-no3dr4tcb2dah27234ck655ulek9l5uq.apps.googleusercontent.com';
 var G_READY=false;
 function initGoogleBtn(){
   if(GOOGLE_CLIENT_ID.indexOf('PASTE_')===0||typeof google==='undefined'||!google.accounts||!google.accounts.id){
@@ -1137,42 +1032,8 @@ function changePasswordClick(){
     else if(r.needLogin)openAuth();
     else toast(r.msg);
   },function(){toast('Network error.');});
-}el('au_step1').style.display='block';el('au_step2').style.display='none';el('au_reg').style.display='none';el('auth_title').innerText='Sign in as Job Seeker';el('au_toggle').innerText='New here? Create an account';setMsg('au_err','');setMsg('au_oerr','');openModal('mAuth');}
-function toggleCreate(){
-  AUTH_MODE=(AUTH_MODE==='login')?'reg':'login';
-  el('au_reg').style.display=(AUTH_MODE==='reg')?'block':'none';
-  el('auth_title').innerText=(AUTH_MODE==='reg')?'Create Job Seeker Account':'Sign in as Job Seeker';
-  el('au_toggle').innerText=(AUTH_MODE==='reg')?'Already have an account? Sign in':'New here? Create an account';
-  setMsg('au_err','');
 }
-function backStep1(){el('au_step1').style.display='block';el('au_step2').style.display='none';}
-function sendOtpClick(){
-  var id=el('au_id').value.trim();setMsg('au_err','');
-  if(!id){setMsg('au_err','Please enter email or mobile number.');return;}
-  var regData=null;
-  if(AUTH_MODE==='reg'||el('au_reg').style.display==='block'){
-    var nm=el('au_name').value.trim(),mb=el('au_mobile').value.trim();
-    if(!nm||!/^[6-9][0-9]{9}$/.test(mb)){setMsg('au_err','Enter your name and a valid 10-digit mobile number.');return;}
-    regData={name:nm,mobile:mb};
-  }
-  el('au_send').disabled=true;el('au_send').innerText='Sending...';
-  api({action:'sendOtp',identifier:id,regData:regData},function(r){
-    el('au_send').disabled=false;el('au_send').innerText='Send OTP';
-    if(r.ok){setMsg('au_sent',r.msg);el('au_step1').style.display='none';el('au_step2').style.display='block';el('au_otp').value='';}
-    else if(r.needRegister){AUTH_MODE='reg';el('au_reg').style.display='block';el('auth_title').innerText='Create Job Seeker Account';setMsg('au_err',r.msg);}
-    else setMsg('au_err',r.msg);
-  },function(){el('au_send').disabled=false;el('au_send').innerText='Send OTP';setMsg('au_err','Network error. Try again.');});
-}
-function verifyOtpClick(){
-  var id=el('au_id').value.trim(),otp=el('au_otp').value.trim();setMsg('au_oerr','');
-  if(otp.length!==6){setMsg('au_oerr','Enter the 6-digit OTP.');return;}
-  el('au_verify').disabled=true;el('au_verify').innerText='Verifying...';
-  api({action:'verifyOtp',identifier:id,otp:otp},function(r){
-    el('au_verify').disabled=false;el('au_verify').innerText='Verify & Continue';
-    if(r.ok){TOKEN=r.token;USER=r.candidate;try{localStorage.setItem('ja_tok',TOKEN);}catch(e){}closeModal('mAuth');setAuthUI();toast('Welcome, '+USER.Name+'!');loadJobs();if(CUR_JOB)openDetail(CUR_JOB.jobId);if(PENDING_APPLY)startApply();}
-    else setMsg('au_oerr',r.msg);
-  },function(){el('au_verify').disabled=false;el('au_verify').innerText='Verify & Continue';setMsg('au_oerr','Network error. Try again.');});
-}
+
 function doLogout(){
   if(TOKEN)api({action:'logout',token:TOKEN},function(){});
   if(EMP_TOKEN)api({action:'empLogout',token:EMP_TOKEN},function(){});
@@ -1367,6 +1228,7 @@ document.onclick=function(ev){
   if(!inChip){var all=document.querySelectorAll('.fdrop');for(var i=0;i<all.length;i++)all[i].className='fdrop';}
   if(!inMenu)closeUserMenu();
 };
+/* PURANA_BLOCK_START
   if(!USER){el('myList').innerHTML='<div class="emptybox">Please sign in to see your applications.<br><br><button class="getstarted" onclick="openAuth()">Sign in</button></div>';return;}
   el('spinMy').style.display='block';
   api({action:'myApps',token:TOKEN},function(r){
@@ -1409,9 +1271,7 @@ function renderProfile(){
     '<div class="fld"><label>Resume (PDF/DOC, max 5 MB)</label><input type="file" id="pf_file" accept=".pdf,.doc,.docx"></div>'+
     (p.ResumeURL?'<div style="margin-bottom:10px"><a href="'+esc(p.ResumeURL)+'" target="_blank" style="color:var(--blue);font-size:14px">View current resume</a></div>':'<div class="postedon" style="margin-bottom:10px">No resume uploaded yet.</div>')+
     '<div class="errmsg" id="pf_err"></div><div class="okmsg" id="pf_ok"></div>'+
-    '<button class="mbtn" id="pf_save" onclick="saveProfile()">Save Profile</button>'+
-  '</div>';
-}
+PURANA_BLOCK_END */
 function saveProfile(){
   setMsg('pf_err','');setMsg('pf_ok','');
   var p={Name:el('pf_Name').value.trim(),Mobile:el('pf_Mobile').value.trim(),Gender:el('pf_Gender').value,DOB:el('pf_DOB').value,City:el('pf_City').value.trim(),State:el('pf_State').value.trim(),'Highest Qualification':el('pf_HQ').value,Course:el('pf_Course').value.trim(),'Experience Level':el('pf_EL').value,'Years Exp':el('pf_YE').value,'Current Title':el('pf_CT').value.trim(),'Current Company':el('pf_CC').value.trim(),'Expected Salary':el('pf_ES').value.trim(),Skills:el('pf_Skills').value.trim(),Languages:el('pf_Lang').value.trim(),About:el('pf_About').value.trim()};
