@@ -113,6 +113,39 @@ body{background:#fff;color:var(--text);padding-bottom:70px;}
 .rolebtns{display:flex;gap:10px;margin-bottom:16px;}
 .rolebtn{flex:1;border:1.5px solid var(--line);border-radius:10px;padding:16px 10px;text-align:center;cursor:pointer;font-weight:700;font-size:14px;}
 .rolebtn:hover{border-color:var(--blue);background:var(--pill);}
+/* ===== Indeed-style employer jobs board ===== */
+.emptoolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:14px 0 6px;}
+.emptoolbar h2{font-size:24px;font-weight:800;}
+.postjobbtn{background:var(--blue);color:#fff;border:none;font-size:14px;font-weight:700;padding:11px 20px;border-radius:8px;cursor:pointer;}
+.postjobbtn:hover{background:var(--blue-dark);}
+.jfilters{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--line);}
+.jfilters select,.jfilters input{padding:8px 12px;border:1px solid #b0b0b0;border-radius:20px;font-size:13px;background:#fff;outline:none;}
+.jcount{font-size:13px;color:var(--muted);margin-left:auto;}
+.jtblhead{display:flex;padding:12px 8px;border-bottom:1px solid var(--line);font-size:13px;font-weight:700;color:var(--muted);}
+.jtblhead .c1,.jrow .c1{flex:2;min-width:150px;}
+.jtblhead .c2,.jrow .c2{flex:2.2;min-width:190px;}
+.jtblhead .c3,.jrow .c3{flex:1.2;min-width:110px;}
+.jtblhead .c4,.jrow .c4{flex:1.1;min-width:100px;}
+.jtblhead .c5,.jrow .c5{flex:1.3;min-width:130px;}
+.jrow{display:flex;padding:14px 8px;align-items:center;gap:8px;}
+.jrow .jn{font-size:15px;font-weight:700;color:var(--blue);text-decoration:underline;cursor:pointer;}
+.jrow .jl{font-size:13px;color:var(--muted);margin-top:2px;}
+.jrow .jedit{font-size:12.5px;color:var(--blue);cursor:pointer;margin-top:4px;display:inline-block;}
+.candbox{display:flex;gap:10px;background:#f7f7f7;border-radius:8px;padding:10px 12px;}
+.candcell{text-align:center;cursor:pointer;min-width:56px;}
+.candcell b{display:block;font-size:15px;color:#2d2d2d;}
+.candcell span{font-size:11.5px;color:var(--blue);text-decoration:underline;}
+.sponsorlink{font-size:13px;color:var(--muted);}
+.sponsorlink a{color:var(--blue);cursor:pointer;text-decoration:underline;}
+.dateposted{font-size:13px;color:var(--muted);line-height:1.5;}
+.jstatussel{padding:9px 10px;border:1px solid #767676;border-radius:8px;font-size:13px;background:#fff;width:100%;}
+.jalert{background:#fdeeee;border-radius:8px;padding:11px 14px;margin:0 8px 12px;font-size:13.5px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+.jalert.blue{background:#f0f6ff;}
+.jalert .dot{display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;background:var(--red);color:#fff;font-size:11px;font-weight:800;margin-right:6px;}
+.jalert.blue .dot{background:var(--blue);}
+.jsep{border-bottom:1px solid var(--line);}
+.b-Paused{background:#fff4d6;color:#8a6d00;}
+@media(max-width:760px){.jtblhead{display:none;}.jrow{flex-direction:column;align-items:stretch;gap:10px;}}
 </style>
 </head>
 <body>
@@ -173,12 +206,38 @@ body{background:#fff;color:var(--text);padding-bottom:70px;}
 <div id="v_emp" style="display:none"><div class="wrap">
   <div class="secttl" style="font-size:20px;margin-top:18px" id="empHi">Employer Dashboard</div>
   <div class="subtabs">
-    <button id="et_post" class="active" onclick="empTab('post')">Post / My Jobs</button>
-    <button id="et_apps" onclick="empTab('apps')">Applicants</button>
+    <button id="et_post" class="active" onclick="empTab('post')">All jobs</button>
+    <button id="et_apps" onclick="empTab('apps')">Candidates</button>
     <button id="et_company" onclick="empTab('company')">Company Profile</button>
   </div>
   <div class="spinner" id="spinEmp">Loading...</div>
   <div id="empPost">
+    <div class="emptoolbar">
+      <h2>Jobs</h2>
+      <button class="postjobbtn" onclick="empShowForm()">Post a job</button>
+    </div>
+    <div class="jfilters">
+      <select id="jfl_status" onchange="empRenderJobs()">
+        <option value="">All status</option>
+        <option>Active</option>
+        <option>Paused</option>
+        <option>Closed</option>
+      </select>
+      <input type="text" id="jfl_title" placeholder="Title" onkeyup="empRenderJobs()">
+      <input type="text" id="jfl_loc" placeholder="Location" onkeyup="empRenderJobs()">
+      <select id="jfl_sort" onchange="empRenderJobs()">
+        <option value="new">Date posted (newest)</option>
+        <option value="old">Date posted (oldest)</option>
+        <option value="title">Job title (A-Z)</option>
+      </select>
+      <span class="jcount" id="jfl_count"></span>
+    </div>
+    <div class="jtblhead">
+      <div class="c1">Job title</div><div class="c2">Candidates</div>
+      <div class="c3">Sponsorship</div><div class="c4">Date posted</div><div class="c5">Job status</div>
+    </div>
+    <div id="empJobList"></div>
+    <div id="empFormCard" style="display:none">
     <div class="acard">
       <div class="secttl" id="jfTitle">Post New Job</div>
       <input type="hidden" id="jf_id">
@@ -197,14 +256,15 @@ body{background:#fff;color:var(--text);padding-bottom:70px;}
       <div class="fld"><label>Job Description *</label><textarea id="jf_desc" rows="5" placeholder="Roles, responsibilities, requirements..."></textarea></div>
       <div class="errmsg" id="jf_err"></div><div class="okmsg" id="jf_ok"></div>
       <button class="mbtn" id="jf_save" style="max-width:200px" onclick="empSaveJob()">Save Job</button>
-      <button class="mlink" style="max-width:120px" onclick="empResetForm()">Clear</button>
+      <button class="mlink" style="max-width:120px" onclick="empHideForm()">Cancel</button>
     </div>
-    <div id="empJobList"></div>
+    </div>
   </div>
   <div id="empApps" style="display:none">
     <div class="filters">
       <select id="ea_status" onchange="empRenderApps()"><option value="">All Status</option></select>
       <input type="text" id="ea_q" placeholder="Search name / email / mobile..." onkeyup="empRenderApps()">
+      <button class="smallbtn" id="ea_clear" style="display:none" onclick="empClearJobFilter()">Show all jobs</button>
     </div>
     <div id="empAppList"></div>
   </div>
@@ -342,7 +402,7 @@ function fillSelect(id, arr, placeholder) {
 }
 
 var TOKEN=null, EMP_TOKEN=null, ADMIN_TOKEN=null, USER=null, EMP=null;
-var JOBS=[], ADM=null, EMP_JOBS=[], EMP_APPS=[], EMP_STATUS=[], CAT_FILTER='';
+var JOBS=[], ADM=null, EMP_JOBS=[], EMP_APPS=[], EMP_STATUS=[], CAT_FILTER='', JOB_FILTER='', JOB_FILTER_NAME='';
 var CUR_JOB=null, PENDING_APPLY=null, AUTH_MODE='login';
 
 function api(payload, cb, errCb){
@@ -644,28 +704,83 @@ function empTab(t){
   el('et_post').className=(t==='post')?'active':'';
   el('et_apps').className=(t==='apps')?'active':'';
   el('et_company').className=(t==='company')?'active':'';
+  if(t!=='post'&&el('empFormCard'))el('empFormCard').style.display='none';
   if(t==='post')empLoadJobs();
   if(t==='apps')empLoadApps();
   if(t==='company')empRenderCompany();
+}
+function empShowForm(){empResetForm();el('empFormCard').style.display='block';el('empFormCard').scrollIntoView();el('jf_title').focus();}
+function empHideForm(){empResetForm();el('empFormCard').style.display='none';window.scrollTo(0,0);}
+function empClearJobFilter(){JOB_FILTER='';JOB_FILTER_NAME='';el('ea_clear').style.display='none';el('ea_status').value='';empRenderApps();}
+function empOpenCands(jobId,title,status){
+  JOB_FILTER=jobId;JOB_FILTER_NAME=title;empTab('apps');
+  setTimeout(function(){if(el('ea_status'))el('ea_status').value=status||'';empRenderApps();},700);
 }
 function empLoadJobs(){
   el('spinEmp').style.display='block';
   api({action:'empJobs',token:EMP_TOKEN},function(r){
     el('spinEmp').style.display='none';
     if(!r.ok){toast('Session expired. Login again.');openEmployer();return;}
-    EMP_JOBS=r.jobs;var html='';
-    for(var i=0;i<EMP_JOBS.length;i++){var j=EMP_JOBS[i];
-      html+='<div class="acard"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px"><div><b>'+esc(j.title)+'</b><br><span class="postedon">'+esc(j.location)+' &bull; '+esc(j.jobType)+' &bull; Posted: '+esc(j.postedDate)+'</span></div><span class="badge b-'+esc(j.status)+'">'+esc(j.status)+'</span></div><div style="margin-top:10px;display:flex;gap:8px"><button class="smallbtn" onclick="empEditJob(\''+j.jobId+'\')">Edit</button>'+(j.status==='Active'?'<button class="redbtn" onclick="empToggle(\''+j.jobId+'\',\'Closed\')">Close</button>':'<button class="greenbtn" onclick="empToggle(\''+j.jobId+'\',\'Active\')">Reopen</button>')+'</div></div>';
-    }
-    el('empJobList').innerHTML=html||'<div class="emptybox">No jobs posted yet.</div>';
-  },function(){el('spinEmp').style.display='none';});
+    EMP_JOBS=r.jobs;empRenderJobs();
+  },function(){el('spinEmp').style.display='none';el('empJobList').innerHTML='<div class="emptybox">Could not load jobs. Please refresh.</div>';});
+}
+function jopt_(v,cur){return '<option'+(v===cur?' selected':'')+'>'+v+'</option>';}
+function empRenderJobs(){
+  var fs=el('jfl_status').value,ft=el('jfl_title').value.toLowerCase(),fl=el('jfl_loc').value.toLowerCase(),sort=el('jfl_sort').value;
+  var list=[];
+  for(var i=0;i<EMP_JOBS.length;i++){
+    var j=EMP_JOBS[i];
+    if(fs&&j.status!==fs)continue;
+    if(ft&&String(j.title).toLowerCase().indexOf(ft)===-1)continue;
+    if(fl&&String(j.location).toLowerCase().indexOf(fl)===-1)continue;
+    list.push(j);
+  }
+  if(sort==='title')list.sort(function(a,b){return String(a.title).toLowerCase()<String(b.title).toLowerCase()?-1:1;});
+  else if(sort==='old')list.reverse();
+  el('jfl_count').innerText=list.length+' result'+(list.length===1?'':'s');
+  var html='';
+  for(var k=0;k<list.length;k++){
+    var j=list[k],id=j.jobId,tt=String(j.title).replace(/'/g,'');
+    html+='<div class="jsep"><div class="jrow">'+
+      '<div class="c1"><div class="jn" onclick="empEditJob(\''+id+'\')">'+esc(j.title)+'</div>'+
+        '<div class="jl">'+esc(j.location)+'</div>'+
+        '<span class="jedit" onclick="empEditJob(\''+id+'\')">Edit job</span></div>'+
+      '<div class="c2"><div class="candbox">'+
+        '<div class="candcell" onclick="empOpenCands(\''+id+'\',\''+tt+'\',\'\')"><b>'+(j.candAll||0)+'</b><span>All</span></div>'+
+        '<div class="candcell" onclick="empOpenCands(\''+id+'\',\''+tt+'\',\'Applied\')"><b>'+(j.candNew||0)+'</b><span>New</span></div>'+
+        '<div class="candcell" onclick="empOpenCands(\''+id+'\',\''+tt+'\',\'Shortlisted\')"><b>'+(j.candShort||0)+'</b><span>Shortlisted</span></div>'+
+      '</div></div>'+
+      '<div class="c3 sponsorlink">'+(j.featured?'<b style="color:#188038">Sponsored</b>':'Free - <a onclick="empSponsor(\''+id+'\')">Sponsor job</a>')+'</div>'+
+      '<div class="c4 dateposted">'+esc(j.postedAgo||'')+'<br>'+esc(j.postedDate)+'</div>'+
+      '<div class="c5"><select class="jstatussel" onchange="empSetStatus(\''+id+'\',this.value)">'+
+        jopt_('Active',j.status)+jopt_('Paused',j.status)+jopt_('Closed',j.status)+'</select></div>'+
+      '</div>';
+    if(j.status==='Paused')
+      html+='<div class="jalert"><div><span class="dot">!</span> This job is paused. It is not visible to job seekers right now.</div><button class="smallbtn" onclick="empSetStatus(\''+id+'\',\'Active\')">Resume job</button></div>';
+    else if(j.status==='Closed')
+      html+='<div class="jalert"><div><span class="dot">!</span> This job is closed. Candidates can no longer apply.</div><button class="smallbtn" onclick="empSetStatus(\''+id+'\',\'Active\')">Reopen job</button></div>';
+    else if(j.expired)
+      html+='<div class="jalert"><div><span class="dot">!</span> There is a problem with your post. Last date has passed, so this job is not shown to job seekers.</div><button class="smallbtn" onclick="empEditJob(\''+id+'\')">Review</button></div>';
+    else if(!j.featured&&(j.candAll||0)===0)
+      html+='<div class="jalert blue"><div><span class="dot">i</span> No candidates yet. Sponsor this job to show it at the top of search results.</div><button class="smallbtn" onclick="empSponsor(\''+id+'\')">Sponsor now</button></div>';
+    html+='</div>';
+  }
+  el('empJobList').innerHTML=html||'<div class="emptybox">No jobs found. Click "Post a job" to create your first job.</div>';
+}
+function empSponsor(id){
+  if(!confirm('Sponsor this job so it appears at the top of the job list?'))return;
+  api({action:'empSponsorJob',token:EMP_TOKEN,jobId:id},function(r){
+    if(r.ok){toast(r.msg);empLoadJobs();}
+    else if(r.needLogin)openEmployer();
+    else toast(r.msg);
+  },function(){toast('Network error.');});
 }
 function empEditJob(id){
   var j=null;for(var i=0;i<EMP_JOBS.length;i++)if(EMP_JOBS[i].jobId===id)j=EMP_JOBS[i];if(!j)return;
   el('jf_id').value=j.jobId;el('jf_title').value=j.title;el('jf_location').value=j.location;
   el('jf_category').value=j.category||'';el('jf_type').value=j.jobType||'Full-time';el('jf_exp').value=j.experience||'';el('jf_edu').value=j.education||'';
   el('jf_salary').value=j.salary;el('jf_openings').value=j.openings||1;el('jf_skills').value=j.skills;el('jf_lastdate').value=j.lastDate||'';el('jf_desc').value=j.description;
-  el('jfTitle').innerText='Edit Job: '+j.title;window.scrollTo(0,0);
+  el('jfTitle').innerText='Edit Job: '+j.title;el('empFormCard').style.display='block';el('empFormCard').scrollIntoView();
 }
 function empResetForm(){el('jf_id').value='';el('jf_title').value='';el('jf_location').value='';el('jf_category').value='';el('jf_type').value='Full-time';el('jf_exp').value='';el('jf_edu').value='';el('jf_salary').value='';el('jf_openings').value='1';el('jf_skills').value='';el('jf_lastdate').value='';el('jf_desc').value='';el('jfTitle').innerText='Post New Job';setMsg('jf_err','');setMsg('jf_ok','');}
 function empSaveJob(){
@@ -675,12 +790,13 @@ function empSaveJob(){
   el('jf_save').disabled=true;el('jf_save').innerText='Saving...';
   api({action:'empSaveJob',token:EMP_TOKEN,job:job},function(r){
     el('jf_save').disabled=false;el('jf_save').innerText='Save Job';
-    if(r.ok){setMsg('jf_ok',r.msg);empResetForm();empLoadJobs();}
+    if(r.ok){toast(r.msg);empHideForm();empLoadJobs();}
     else if(r.needLogin){openEmployer();}
     else setMsg('jf_err',r.msg);
   },function(){el('jf_save').disabled=false;el('jf_save').innerText='Save Job';setMsg('jf_err','Network error.');});
 }
-function empToggle(id,st){api({action:'empToggleJob',token:EMP_TOKEN,jobId:id,status:st},function(r){if(r.ok){toast(r.msg);empLoadJobs();}else if(r.needLogin)openEmployer();});}
+function empSetStatus(id,st){api({action:'empToggleJob',token:EMP_TOKEN,jobId:id,status:st},function(r){if(r.ok){toast(r.msg);empLoadJobs();}else if(r.needLogin)openEmployer();else toast(r.msg);},function(){toast('Network error.');});}
+function empToggle(id,st){empSetStatus(id,st);}
 function empLoadApps(){
   el('spinEmp').style.display='block';
   api({action:'empApps',token:EMP_TOKEN},function(r){
@@ -693,7 +809,10 @@ function empLoadApps(){
 }
 function empRenderApps(){
   var fs=el('ea_status').value,q=el('ea_q').value.toLowerCase(),html='',c=0;
+  el('ea_clear').style.display=JOB_FILTER?'inline-block':'none';
+  if(JOB_FILTER)html+='<div class="note" style="margin-bottom:12px"><b>Showing candidates for:</b> '+esc(JOB_FILTER_NAME)+'</div>';
   for(var i=0;i<EMP_APPS.length;i++){var a=EMP_APPS[i];
+    if(JOB_FILTER&&a.jobId!==JOB_FILTER)continue;
     if(fs&&a.status!==fs)continue;
     if(q&&(a.name+' '+a.email+' '+a.mobile).toLowerCase().indexOf(q)===-1)continue;
     c++;var stOpts='';for(var s=0;s<EMP_STATUS.length;s++)stOpts+='<option'+(EMP_STATUS[s]===a.status?' selected':'')+'>'+EMP_STATUS[s]+'</option>';
