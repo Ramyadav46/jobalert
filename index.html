@@ -145,7 +145,45 @@ body{background:#fff;color:var(--text);padding-bottom:70px;}
 .jalert.blue .dot{background:var(--blue);}
 .jsep{border-bottom:1px solid var(--line);}
 .b-Paused{background:#fff4d6;color:#8a6d00;}
-@media(max-width:760px){.jtblhead{display:none;}.jrow{flex-direction:column;align-items:stretch;gap:10px;}}
+/* ===== Employer full-width website shell ===== */
+.empshell{display:flex;max-width:1500px;margin:0 auto;min-height:calc(100vh - 60px);}
+.empside{width:235px;flex-shrink:0;border-right:1px solid var(--line);padding:24px 14px;background:#fafafa;}
+.empbrand{font-size:11.5px;font-weight:800;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+.empco{font-size:17px;font-weight:800;margin-bottom:18px;line-height:1.35;}
+.empnav{display:flex;flex-direction:column;gap:3px;}
+.empnav a{display:block;padding:11px 14px;border-radius:8px;font-size:14.5px;font-weight:600;color:var(--text);cursor:pointer;}
+.empnav a:hover{background:var(--pill);}
+.empnav a.active{background:var(--navy);color:#fff;}
+.empmain{flex:1;padding:22px 30px 70px;min-width:0;}
+.mlbl{display:none;}
+body.empmode .bnav{display:none;}
+body.empmode{padding-bottom:0;}
+body.empmode .topnav a{display:none;}
+body.empmode .hdr-in{max-width:1500px;}
+@media(min-width:1000px){
+  .wrap{max-width:1080px;}
+  #jobList{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;}
+  #jobList .jcard{margin-bottom:0;}
+  #v_detail .wrap{max-width:840px;}
+}
+@media(max-width:900px){
+  .empshell{flex-direction:column;min-height:0;}
+  .empside{width:auto;border-right:none;border-bottom:1px solid var(--line);padding:12px 16px;background:#fff;position:sticky;top:60px;z-index:40;}
+  .empco{font-size:15px;margin-bottom:10px;}
+  .empbrand{display:none;}
+  .empnav{flex-direction:row;overflow-x:auto;gap:7px;}
+  .empnav a{white-space:nowrap;padding:9px 14px;font-size:13.5px;border:1px solid var(--line);border-radius:20px;}
+  .empmain{padding:14px 16px 100px;}
+  .jtblhead{display:none;}
+  .jsep{border-bottom:none;}
+  .jrow{flex-direction:column;align-items:stretch;gap:14px;border:1px solid #d4d2d0;border-radius:12px;margin:12px 0;padding:14px;}
+  .jrow .c1,.jrow .c2,.jrow .c3,.jrow .c4,.jrow .c5{min-width:0;}
+  .mlbl{display:block;font-size:11px;font-weight:800;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+  .jalert{margin:0 0 14px;}
+  .emptoolbar h2{font-size:20px;}
+  .jfilters select,.jfilters input{flex:1;min-width:135px;}
+  .candbox{justify-content:space-between;}
+}
 </style>
 </head>
 <body>
@@ -203,13 +241,20 @@ body{background:#fff;color:var(--text);padding-bottom:70px;}
 </div></div>
 
 <!-- EMPLOYER DASHBOARD -->
-<div id="v_emp" style="display:none"><div class="wrap">
-  <div class="secttl" style="font-size:20px;margin-top:18px" id="empHi">Employer Dashboard</div>
-  <div class="subtabs">
-    <button id="et_post" class="active" onclick="empTab('post')">All jobs</button>
-    <button id="et_apps" onclick="empTab('apps')">Candidates</button>
-    <button id="et_company" onclick="empTab('company')">Company Profile</button>
-  </div>
+<div id="v_emp" style="display:none">
+ <div class="empshell">
+  <aside class="empside">
+    <div class="empbrand">Employer Account</div>
+    <div class="empco" id="empHi">Employer Dashboard</div>
+    <nav class="empnav">
+      <a id="et_post" class="active" onclick="empTab('post')">Jobs</a>
+      <a id="et_apps" onclick="empTab('apps')">Candidates</a>
+      <a id="et_company" onclick="empTab('company')">Company Profile</a>
+      <a onclick="go('home')">Back to job search</a>
+      <a onclick="empSignout()">Sign out</a>
+    </nav>
+  </aside>
+  <main class="empmain">
   <div class="spinner" id="spinEmp">Loading...</div>
   <div id="empPost">
     <div class="emptoolbar">
@@ -269,7 +314,9 @@ body{background:#fff;color:var(--text);padding-bottom:70px;}
     <div id="empAppList"></div>
   </div>
   <div id="empCompany" style="display:none"></div>
-</div></div>
+  </main>
+ </div>
+</div>
 
 <!-- ADMIN DASHBOARD -->
 <div id="v_admin" style="display:none"><div class="wrap">
@@ -452,6 +499,7 @@ function setAuthUI(){
 function go(view){
   var views=['home','detail','myjobs','profile','emp','admin'];
   for(var i=0;i<views.length;i++){var v=el('v_'+views[i]);if(v)v.style.display=(views[i]===view)?'block':'none';}
+  document.body.className=(view==='emp'||view==='admin')?'empmode':'';
   var navs=['home','myjobs','profile'];
   for(var n=0;n<navs.length;n++){var a=(navs[n]===view);el('bn_'+navs[n]).className=a?'active':'';el('tn_'+navs[n]).className=a?'active':'';}
   if(view==='myjobs')loadMyJobs();
@@ -743,16 +791,16 @@ function empRenderJobs(){
     var j=list[k],id=j.jobId,tt=String(j.title).replace(/'/g,'');
     html+='<div class="jsep"><div class="jrow">'+
       '<div class="c1"><div class="jn" onclick="empEditJob(\''+id+'\')">'+esc(j.title)+'</div>'+
-        '<div class="jl">'+esc(j.location)+'</div>'+
+        '<div class="jl">'+esc(j.location)+' &bull; '+esc(j.jobType||'')+'</div>'+
         '<span class="jedit" onclick="empEditJob(\''+id+'\')">Edit job</span></div>'+
-      '<div class="c2"><div class="candbox">'+
+      '<div class="c2"><div class="mlbl">Candidates</div><div class="candbox">'+
         '<div class="candcell" onclick="empOpenCands(\''+id+'\',\''+tt+'\',\'\')"><b>'+(j.candAll||0)+'</b><span>All</span></div>'+
         '<div class="candcell" onclick="empOpenCands(\''+id+'\',\''+tt+'\',\'Applied\')"><b>'+(j.candNew||0)+'</b><span>New</span></div>'+
         '<div class="candcell" onclick="empOpenCands(\''+id+'\',\''+tt+'\',\'Shortlisted\')"><b>'+(j.candShort||0)+'</b><span>Shortlisted</span></div>'+
       '</div></div>'+
-      '<div class="c3 sponsorlink">'+(j.featured?'<b style="color:#188038">Sponsored</b>':'Free - <a onclick="empSponsor(\''+id+'\')">Sponsor job</a>')+'</div>'+
-      '<div class="c4 dateposted">'+esc(j.postedAgo||'')+'<br>'+esc(j.postedDate)+'</div>'+
-      '<div class="c5"><select class="jstatussel" onchange="empSetStatus(\''+id+'\',this.value)">'+
+      '<div class="c3 sponsorlink"><div class="mlbl">Sponsorship</div>'+(j.featured?'<b style="color:#188038">Sponsored</b>':'Free - <a onclick="empSponsor(\''+id+'\')">Sponsor job</a>')+'</div>'+
+      '<div class="c4 dateposted"><div class="mlbl">Date posted</div>'+esc(j.postedAgo||'')+'<br>'+esc(j.postedDate)+'</div>'+
+      '<div class="c5"><div class="mlbl">Job status</div><select class="jstatussel" onchange="empSetStatus(\''+id+'\',this.value)">'+
         jopt_('Active',j.status)+jopt_('Paused',j.status)+jopt_('Closed',j.status)+'</select></div>'+
       '</div>';
     if(j.status==='Paused')
